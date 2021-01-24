@@ -1,28 +1,36 @@
-import {useState, useEffect} from 'react'
-import ButtonGroup from '@material-ui/core/ButtonGroup'
-import Button from '@material-ui/core/Button'
-import Input from '@material-ui/core/Input';
+import { useReducer } from 'react'
+import Button from '@material-ui/core/Button';
+import ButtonGroup from '@material-ui/core/ButtonGroup';
 
-export default function Home() {
-  const [count, setCount] = useState(0)
-  const [name, setName] = useState('')
+const initialCounts = { first: 0, second: 100 }
 
-  // 第2引数の配列に渡したstate([count])が変更された時に限りuseEffectを実行
-  // 第2引数を設定しなければ、同ファイル内の関係ないコンポーネントが再レンダーされた時にも実行されてしまい非効率。
-  // 第2引数に[]を設定すると、初回のみ実行される。 
-  useEffect(() => {
-    // ボタンクリックの度にタブのタイトルが変わる
-    document.title =`${count}回クリックされました`
-    console.log('useEffect実行')
-  }, [count])
+const reducer = (counts, action)=> {
+  switch (action.type){
+    case 'increment1': return {...counts, first: counts.first + action.value}
+    case 'decrement1': return {...counts, first: counts.first - action.value}
+    case 'increment2': return {...counts, second: counts.second + action.value}
+    case 'decrement2': return {...counts, second: counts.second - action.value}
+    case 'reset1': return {...counts, first: initialCounts.first}
+    case 'reset2': return {...counts, second: initialCounts.second}
+    default: return counts
+  }
+}
+
+export default function Counters() {
+  const [counts, dispatch] = useReducer(reducer, initialCounts)
 
   return <>
-    <p>{`${count}回クリックされました`}</p>
+    <h2>カウント1：{counts.first}</h2>
     <ButtonGroup color="primary" aria-label="outlined primary button group">
-      <Button onClick={() => setCount((prev) => prev + 1)}>ボタン</Button>
-      <Button onClick={() => setCount(0)}>リセット</Button>
+      <Button onClick={()=>dispatch({type: 'increment1', value: 1})}>increment</Button>
+      <Button onClick={()=>dispatch({type: 'decrement1', value: 1})}>decrement</Button>
+      <Button onClick={()=>dispatch({type: 'reset1'})}>reset</Button>
     </ButtonGroup>
-    <p>名前: {name}</p>
-    <Input value={name} onChange={ (e) => { setName(e.target.value) } }/>
+    <h2>カウント2：{counts.second}</h2>
+    <ButtonGroup color="secondary" aria-label="outlined primary button group">
+      <Button onClick={()=>dispatch({type: 'increment2', value: 100})}>increment</Button>
+      <Button onClick={()=>dispatch({type: 'decrement2', value: 100})}>decrement</Button>
+      <Button onClick={()=>dispatch({type: 'reset2'})}>reset</Button>
+    </ButtonGroup>
   </>
 }
