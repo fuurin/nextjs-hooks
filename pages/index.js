@@ -1,25 +1,18 @@
-import React, {useMemo, useState} from 'react'
+import {useRef, useState} from 'react'
 
 export default function UseMemo() {
-  const [count1, setCount1] = useState(0)
-  const [count2, setCount2] = useState(0)
+  const [text, setText] = useState("");
 
-  const increment1 = () => setCount1(count1 + 1)
-  const increment2 = () => setCount2(count2 + 1)
+  const inputEl = useRef(null);
+  const handleClick = () => {
+    setText(inputEl.current.value);
+  };
 
-  const square = useMemo(() => {
-    console.log('execute a heavy function square(no memo)')
-    let i = 0
-    while (i < 2000000000) i++
-    return count2 * count2
-  }, [count2])
+  console.log("render");
 
   return <>
-    <div>count1: {count1}</div>
-    <div>count2: {count2}</div>
-    {/* useMemoでラップすると square() から square のように書き方が変わる*/}
-    <div>square of count2: {square}</div>
-    <button onClick={increment1}>increment1</button>
-    <button onClick={increment2}>increment2</button>
+    <input ref={inputEl} type="text" />
+    <button onClick={handleClick}>set text</button>
+    <p>TEXT: {text}</p>
   </>
 }
