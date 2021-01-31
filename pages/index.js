@@ -1,28 +1,32 @@
-import {useState, useEffect} from 'react'
-import ButtonGroup from '@material-ui/core/ButtonGroup'
-import Button from '@material-ui/core/Button'
-import Input from '@material-ui/core/Input';
+import React, {useState, useCallback} from 'react'
 
-export default function Home() {
-  const [count, setCount] = useState(0)
-  const [name, setName] = useState('')
+const Title = React.memo(() => {
+  console.log('Title component')
+  return <h2>useCallBack Test</h2>
+})
 
-  // 第2引数の配列に渡したstate([count])が変更された時に限りuseEffectを実行
-  // 第2引数を設定しなければ、同ファイル内の関係ないコンポーネントが再レンダーされた時にも実行されてしまい非効率。
-  // 第2引数に[]を設定すると、初回のみ実行される。 
-  useEffect(() => {
-    // ボタンクリックの度にタブのタイトルが変わる
-    document.title =`${count}回クリックされました`
-    console.log('useEffect実行')
-  }, [count])
+const Button = React.memo(({handleClick,value}) => {
+  console.log('Button child component', value)
+  return <button type="button" onClick={handleClick}>{value}</button>
+})
+
+const Count = React.memo(({text, countState}) => {
+  console.log('Count child component', text)
+  return <p>{text}:{countState}</p>
+})
+
+export default function Counter() {
+  const [firstCountState, setFirstCountState] = useState(0)
+  const [secondCountState, setSecondCountState] = useState(10)
+
+  const incrementFirstCounter = useCallback(() => setFirstCountState(firstCountState + 1), [firstCountState])
+  const incrementSecondCounter = useCallback(() => setSecondCountState(secondCountState + 10), [secondCountState])
 
   return <>
-    <p>{`${count}回クリックされました`}</p>
-    <ButtonGroup color="primary" aria-label="outlined primary button group">
-      <Button onClick={() => setCount((prev) => prev + 1)}>ボタン</Button>
-      <Button onClick={() => setCount(0)}>リセット</Button>
-    </ButtonGroup>
-    <p>名前: {name}</p>
-    <Input value={name} onChange={ (e) => { setName(e.target.value) } }/>
+    <Title/>
+    <Count text="+ 1 ボタン" countState={firstCountState}/>
+    <Count text="+ 10 ボタン" countState={secondCountState}/>
+    <Button handleClick={incrementFirstCounter} value={'+1 ボタン'}/>
+    <Button handleClick={incrementSecondCounter} value={'+10 ボタン'}/>
   </>
 }
